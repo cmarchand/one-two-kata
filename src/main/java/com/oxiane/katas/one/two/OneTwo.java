@@ -131,13 +131,6 @@ final class GroupingAccumulator {
   }
   public int occurrences() { return occurrences; }
   public String value() { return value; }
-  @Override
-  public String toString() {
-    return "{" +
-        "value='" + value + '\'' +
-        ", occurrences=" + occurrences +
-        '}';
-  }
   public void inc() {
     occurrences++;
   }
