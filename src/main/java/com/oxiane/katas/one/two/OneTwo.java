@@ -83,34 +83,34 @@ public class OneTwo {
 
   private static class DigitsToWordsConverter {
     private static String convert(String inputDigits) {
-      return Pattern.compile(" ")
-                    .splitAsStream(inputDigits)
-                    .<GroupingAccumulator>gather(Gatherer.ofSequential(
-                        GroupingAccumulator::new,
-                        (state, digit, downStream) -> {
-                          if (state.isEmpty()) {
-                            state.startGroupingWith(digit);
-                          } else if (state.matches(digit) && state.occurrences() < 9) {
-                            state.inc();
-                          } else {
-                            boolean ret = downStream.push(state);
-                            state.startGroupingWith(digit);
-                            return ret;
-                          }
-                          return true;
-                        },
-                        (state, downstream) -> downstream.push(state)
-                    ))
-                    .map(DigitsToWordsConverter::convertGroupToResult)
-                    .collect(Collectors.joining(" "));
+      return Pattern
+          .compile(" ")
+          .splitAsStream(inputDigits)
+          .<GroupingAccumulator>gather(Gatherer.ofSequential(
+              GroupingAccumulator::new,
+              (state, digit, downStream) -> {
+                if (state.isEmpty()) {
+                  state.startGroupingWith(digit);
+                } else if (state.matches(digit) && state.occurrences() < 9) {
+                  state.inc();
+                } else {
+                  boolean ret = downStream.push(state);
+                  state.startGroupingWith(digit);
+                  return ret;
+                }
+                return true;
+              },
+              (state, downstream) -> downstream.push(state)
+          ))
+          .map(DigitsToWordsConverter::convertGroupToResult)
+          .collect(Collectors.joining(" "));
     }
 
     private static String convertGroupToResult(GroupingAccumulator groupingAccumulator) {
-      NumberStrategy currentNumber = NumberStrategy.ofDigit(groupingAccumulator.value());
-      StringJoiner result = new StringJoiner(" ");
-      result.add(NumberStrategy.of(groupingAccumulator.occurrences()).word);
-      result.add(currentNumber.word);
-      return result.toString();
+      return
+          NumberStrategy.of(groupingAccumulator.occurrences()).word +
+              " " +
+              NumberStrategy.ofDigit(groupingAccumulator.value()).word;
     }
   }
 }
