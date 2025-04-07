@@ -91,15 +91,14 @@ public class OneTwo {
                 } else if (state.matches(digit) && state.occurrences()<9) {
                   state.inc();
                 } else {
-                  downStream.push(state);
+                  boolean ret = downStream.push(state);
                   state.startGroupingWith(digit);
+                  return ret;
                 }
                 return true;
               },
             (state, downstream) -> downstream.push(state)
           ))
-// but why do I need this ? I never push a state with 0 occurrences !
-          .filter(state -> state.occurrences() > 0)
           .map(DigitsToWordsConverter::convertGroupToResult)
       .collect(Collectors.joining(" "));
     }
