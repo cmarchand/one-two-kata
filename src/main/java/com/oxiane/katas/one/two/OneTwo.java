@@ -86,56 +86,60 @@ public class OneTwo {
           .<GroupingAccumulator>gather(Gatherer.ofSequential(
               GroupingAccumulator::new,
               (state, digit, downStream) -> {
-                if(state.isEmpty())
+                if(state.isEmpty()) {
                   state.startGroupingWith(digit);
-                else if (state.matches(digit))
-                  state.occurrences++;
-                else {
+                } else if (state.matches(digit) && state.occurrences()<9) {
+                  state.inc();
+                } else {
                   downStream.push(state);
                   state.startGroupingWith(digit);
                 }
                 return true;
               },
-            (groupingAccumulator, downstream) ->
-                downstream.push(groupingAccumulator)
+            (state, downstream) -> downstream.push(state)
           ))
-          .map(groupingAccumulator -> convertGroupToResult(groupingAccumulator))
+// but why do I need this ? I never push a state with 0 occurrences !
+          .filter(state -> state.occurrences() > 0)
+          .map(DigitsToWordsConverter::convertGroupToResult)
       .collect(Collectors.joining(" "));
     }
     private static String convertGroupToResult(GroupingAccumulator groupingAccumulator) {
-      NumberStrategy currentNumber = NumberStrategy.ofDigit(groupingAccumulator.value);
+      NumberStrategy currentNumber = NumberStrategy.ofDigit(groupingAccumulator.value());
       StringJoiner result = new StringJoiner(" ");
-      while(groupingAccumulator.occurrences >= 9) {
-        result.add(NumberStrategy.NINE.word);
-        result.add(currentNumber.word);
-        groupingAccumulator.occurrences -=9;
-      }
-      result.add(NumberStrategy.of(groupingAccumulator.occurrences).word);
+      result.add(NumberStrategy.of(groupingAccumulator.occurrences()).word);
       result.add(currentNumber.word);
       return result.toString();
     }
   }
-  private static class GroupingAccumulator {
-    String value;
-    int occurrences;
+}
+final class GroupingAccumulator {
+  private String value;
+  private int occurrences;
 
-    private GroupingAccumulator() {
-      value = null;
-      occurrences = 0;
-    }
-    private GroupingAccumulator(String value) {
-      this.value = value;
-      occurrences = 0;
-    }
-    private boolean isEmpty() {
-      return value==null;
-    }
-    private void startGroupingWith(String value) {
-      this.value = value;
-      occurrences = 1;
-    }
-    private boolean matches(String token) {
-      return value.equals(token);
-    }
+  GroupingAccumulator() {
+    value = null;
+    occurrences = 0;
+  }
+  boolean isEmpty() {
+    return value==null;
+  }
+  void startGroupingWith(String value) {
+    this.value = value;
+    occurrences = 1;
+  }
+  boolean matches(String token) {
+    return value.equals(token);
+  }
+  public int occurrences() { return occurrences; }
+  public String value() { return value; }
+  @Override
+  public String toString() {
+    return "{" +
+        "value='" + value + '\'' +
+        ", occurrences=" + occurrences +
+        '}';
+  }
+  public void inc() {
+    occurrences++;
   }
 }
