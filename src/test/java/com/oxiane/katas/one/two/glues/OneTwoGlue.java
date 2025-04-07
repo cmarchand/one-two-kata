@@ -18,7 +18,7 @@ public class OneTwoGlue {
   }
   @When("converting to words")
   public void converting_to_words() {
-    actualWords = new OneTwo().convertDigits(inputDigits);
+    actualWords = OneTwo.convertDigits(inputDigits);
   }
   @Then("words translation is {string}")
   public void words_translation_is_(String expected) {
@@ -31,7 +31,7 @@ public class OneTwoGlue {
   }
   @When("converting to digits")
   public void converting_to_digits() {
-    actualDigits = new OneTwo().convertWords(inputWords);
+    actualDigits = OneTwo.convertWords(inputWords);
   }
   @Then("digits translation is {string}")
   public void digits_translation_is_(String expected) {

@@ -11,11 +11,11 @@ import java.util.stream.IntStream;
 
 public class OneTwo {
 
-  public String convertDigits(String inputDigits) {
+  public static String convertDigits(String inputDigits) {
     return DigitsToWordsConverter.convert(inputDigits);
   }
 
-  public String convertWords(String inputWords) {
+  public static String convertWords(String inputWords) {
     return WordsToDigitsConverter.convert(inputWords);
   }
 
