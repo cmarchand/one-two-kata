@@ -44,9 +44,9 @@ public class OneTwo {
 
     private static NumberStrategy ofDigit(String digit) {
       return Arrays.stream(values())
-          .filter(entry -> entry.digit.equals(digit))
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException("Invalid digit " + digit));
+                   .filter(entry -> entry.digit.equals(digit))
+                   .findFirst()
+                   .orElseThrow(() -> new IllegalArgumentException("Invalid digit " + digit));
     }
 
     public static NumberStrategy of(int digit) {
@@ -55,53 +55,56 @@ public class OneTwo {
 
     public static NumberStrategy ofWord(String word) {
       return Arrays.stream(values())
-          .filter(numberStrategy -> numberStrategy.word.equals(word))
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException("Invalid word " + word));
+                   .filter(numberStrategy -> numberStrategy.word.equals(word))
+                   .findFirst()
+                   .orElseThrow(() -> new IllegalArgumentException("Invalid word " + word));
     }
   }
 
   private static class WordsToDigitsConverter {
     private static String convert(String inputWords) {
-      return Pattern.compile(" ")
+      return Pattern
+          .compile(" ")
           .splitAsStream(inputWords)
           .gather(Gatherers.windowFixed(2))
           .map(WordsToDigitsConverter::convertPairToDigits)
-      .collect(Collectors.joining(" "));
+          .collect(Collectors.joining(" "));
     }
 
     private static String convertPairToDigits(List<String> pair) {
       int quantity = NumberStrategy.ofWord(pair.getFirst()).intValue;
       String figure = NumberStrategy.ofWord(pair.getLast()).digit;
-      StringJoiner stringJoiner = new StringJoiner(" ");
-      IntStream.range(0, quantity)
-          .forEach(_ -> stringJoiner.add(figure));
-      return stringJoiner.toString();
+      return IntStream
+          .range(0, quantity)
+          .mapToObj(_ -> figure)
+          .collect(Collectors.joining(" "));
     }
   }
+
   private static class DigitsToWordsConverter {
     private static String convert(String inputDigits) {
       return Pattern.compile(" ")
-          .splitAsStream(inputDigits)
-          .<GroupingAccumulator>gather(Gatherer.ofSequential(
-              GroupingAccumulator::new,
-              (state, digit, downStream) -> {
-                if(state.isEmpty()) {
-                  state.startGroupingWith(digit);
-                } else if (state.matches(digit) && state.occurrences()<9) {
-                  state.inc();
-                } else {
-                  boolean ret = downStream.push(state);
-                  state.startGroupingWith(digit);
-                  return ret;
-                }
-                return true;
-              },
-            (state, downstream) -> downstream.push(state)
-          ))
-          .map(DigitsToWordsConverter::convertGroupToResult)
-      .collect(Collectors.joining(" "));
+                    .splitAsStream(inputDigits)
+                    .<GroupingAccumulator>gather(Gatherer.ofSequential(
+                        GroupingAccumulator::new,
+                        (state, digit, downStream) -> {
+                          if (state.isEmpty()) {
+                            state.startGroupingWith(digit);
+                          } else if (state.matches(digit) && state.occurrences() < 9) {
+                            state.inc();
+                          } else {
+                            boolean ret = downStream.push(state);
+                            state.startGroupingWith(digit);
+                            return ret;
+                          }
+                          return true;
+                        },
+                        (state, downstream) -> downstream.push(state)
+                    ))
+                    .map(DigitsToWordsConverter::convertGroupToResult)
+                    .collect(Collectors.joining(" "));
     }
+
     private static String convertGroupToResult(GroupingAccumulator groupingAccumulator) {
       NumberStrategy currentNumber = NumberStrategy.ofDigit(groupingAccumulator.value());
       StringJoiner result = new StringJoiner(" ");
@@ -111,6 +114,7 @@ public class OneTwo {
     }
   }
 }
+
 final class GroupingAccumulator {
   private String value;
   private int occurrences;
@@ -119,18 +123,28 @@ final class GroupingAccumulator {
     value = null;
     occurrences = 0;
   }
+
   boolean isEmpty() {
-    return value==null;
+    return value == null;
   }
+
   void startGroupingWith(String value) {
     this.value = value;
     occurrences = 1;
   }
+
   boolean matches(String token) {
     return value.equals(token);
   }
-  public int occurrences() { return occurrences; }
-  public String value() { return value; }
+
+  public int occurrences() {
+    return occurrences;
+  }
+
+  public String value() {
+    return value;
+  }
+
   public void inc() {
     occurrences++;
   }
