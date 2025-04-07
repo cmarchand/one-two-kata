@@ -1,6 +1,9 @@
 package com.oxiane.katas.one.two;
 
 import io.cucumber.core.options.Constants;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.SelectClasspathResource;
@@ -17,5 +20,7 @@ import org.junit.platform.suite.api.Suite;
     key = Constants.PLUGIN_PROPERTY_NAME,
     value = "pretty, html:target/one-two.html"
 )
-public class OneTwoTests {
+public class OneTwoCucumberRunnerTests {
+
+
 }
